@@ -9,11 +9,8 @@
 #include <unordered_set>
 #include <vector>
 
-struct Bus;
-
 struct Stop
 {
-	//std::string name_;
 	geo::Coordinates coordinates{ 0.0,0.0 };
 	std::set<std::string> buses;
 

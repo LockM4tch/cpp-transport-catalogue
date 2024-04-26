@@ -2,11 +2,15 @@
 #include <string>
 
 #include "input_reader.h"
+#include "tests.h"
 #include "stat_reader.h"
 
 using namespace std;
 
 int main() {
+
+    test();
+
     TransportCatalogue catalogue;
 
     int base_request_count;

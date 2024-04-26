@@ -27,7 +27,7 @@ std::string TransportCatalogue::CheckBus(std::string_view bus_name)const {
 		int stops_on_route; float route_length = 0;
 		std::unordered_set<std::string> unique_stops;
 
-			stops_on_route = bus_it->stops.size(); 
+		stops_on_route = bus_it->stops.size(); 
 
 		for (int i = 1; i < stops_on_route; ++i) {
 			unique_stops.insert(bus_it->stops.at(i - 1));
