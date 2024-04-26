@@ -21,32 +21,25 @@ struct Stop
 
 struct Bus
 {
-	std::string name_;
 	std::vector<std::string> stops{};
 	
 	bool operator==(const Bus& other) const {
-		return name_ == other.name_;
-	}
-};
-
-struct BusHasher {
-	std::size_t operator()(const Bus& bus) const {
-		return std::hash<std::string>()(bus.name_);
+		return stops == other.stops;
 	}
 };
 
 class TransportCatalogue {
 public:
-	void AddStop(std::string& id, geo::Coordinates coordinates);
+	void AddStop(const std::string& id, const geo::Coordinates& coordinates);
 
-	void AddBus(std::string& id, std::vector<std::string_view> route);
+	void AddBus(const std::string& id, const std::vector<std::string_view>& route);
 
-	std::string CheckBus(std::string_view bus_name)const;
+	std::string CheckBus(const std::string_view& bus_name)const;
 	
-	std::string CheckStop(std::string_view stop_name)const;
+	std::string CheckStop(const std::string_view& stop_name)const;
 
 private:
 	std::unordered_map <std::string, Stop> stops_;
-	std::unordered_set<Bus, BusHasher> buses_;
+	std::unordered_map<std::string, Bus> buses_;
 
 };
