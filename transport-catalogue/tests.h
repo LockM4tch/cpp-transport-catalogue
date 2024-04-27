@@ -29,7 +29,7 @@ void test() {
 		"Stop Prazhskaya: 55.611678, 37.603831\n"
 	);
 
-	Fill_Catalogue(input, catalogue);
+	FillCatalogue(input, catalogue);
 
 		ostringstream out;
 		string line = "Bus 256";

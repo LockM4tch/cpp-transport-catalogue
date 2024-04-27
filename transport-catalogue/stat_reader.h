@@ -12,4 +12,4 @@
 void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string_view request,
     std::ostream& output);
 
-void Request_Stat(std::istream& in, std::ostream &out, TransportCatalogue& tansport_catalogue);
+void ExecuteStatRequests(std::istream& in, std::ostream &out, TransportCatalogue& tansport_catalogue);

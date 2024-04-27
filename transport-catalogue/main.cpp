@@ -13,8 +13,8 @@ int main() {
 
     TransportCatalogue catalogue;
 
-    Fill_Catalogue(cin, catalogue);
+    FillCatalogue(cin, catalogue);
 
-    Request_Stat(cin, cout, catalogue);
+    ExecuteStatRequests(cin, cout, catalogue);
 
 }

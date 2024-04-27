@@ -3,8 +3,8 @@
 
 
 namespace InputReaderParser {
-        //Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
-        geo::Coordinates ParseCoordinates(std::string_view str) {
+    //Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
+    geo::Coordinates ParseCoordinates(std::string_view str) {
             static const double nan = std::nan("");
 
             auto not_space = str.find_first_not_of(' ');
@@ -22,8 +22,8 @@ namespace InputReaderParser {
             return { lat, lng };
         }
 
-        //Удаляет пробелы в начале и конце строки
-        std::string_view Trim(std::string_view string) {
+    //Удаляет пробелы в начале и конце строки
+    std::string_view Trim(std::string_view string) {
             const auto start = string.find_first_not_of(' ');
             if (start == string.npos) {
                 return {};
@@ -31,8 +31,8 @@ namespace InputReaderParser {
             return string.substr(start, string.find_last_not_of(' ') + 1 - start);
         }
 
-        //Разбивает строку string на n строк, с помощью указанного символа-разделителя delim
-        std::vector<std::string_view> Split(std::string_view string, char delim) {
+    //Разбивает строку string на n строк, с помощью указанного символа-разделителя delim
+    std::vector<std::string_view> Split(std::string_view string, char delim) {
             std::vector<std::string_view> result;
 
             size_t pos = 0;
@@ -50,12 +50,12 @@ namespace InputReaderParser {
             return result;
         }
 
-        /**
-         * Парсит маршрут.
-         * Для кольцевого маршрута (A>B>C>A) возвращает массив названий остановок [A,B,C,A]
-         * Для некольцевого маршрута (A-B-C-D) возвращает массив названий остановок [A,B,C,D,C,B,A]
-         */
-        std::vector<std::string_view> ParseRoute(std::string_view route) {
+    /**
+    * Парсит маршрут.
+    * Для кольцевого маршрута (A>B>C>A) возвращает массив названий остановок [A,B,C,A]
+    * Для некольцевого маршрута (A-B-C-D) возвращает массив названий остановок [A,B,C,D,C,B,A]
+    */
+    std::vector<std::string_view> ParseRoute(std::string_view route) {
             if (route.find('>') != route.npos) {
                 return Split(route, '>');
             }
@@ -67,7 +67,7 @@ namespace InputReaderParser {
             return results;
         }
 
-        CommandDescription ParseCommandDescription(std::string_view line) {
+    CommandDescription ParseCommandDescription(std::string_view line) {
             auto colon_pos = line.find(':');
             if (colon_pos == line.npos) {
                 return {};
@@ -89,7 +89,7 @@ namespace InputReaderParser {
         }
 }
 
-void Fill_Catalogue(std::istream& in, TransportCatalogue& catalogue)  {
+void FillCatalogue(std::istream& in, TransportCatalogue& catalogue){
     int base_request_count;
     in >> base_request_count >> std::ws;
 

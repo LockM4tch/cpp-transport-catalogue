@@ -27,7 +27,7 @@ struct CommandDescription {
 };
 }
 
-void Fill_Catalogue(std::istream& in, TransportCatalogue& catalogue);
+void FillCatalogue(std::istream& in, TransportCatalogue& catalogue);
 
 class InputReader {
 public:
