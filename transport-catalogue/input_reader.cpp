@@ -1,9 +1,6 @@
 #include "input_reader.h"
 
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-#include <iterator>
+
 
 namespace InputReaderParser {
         //Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
@@ -87,13 +84,26 @@ namespace InputReaderParser {
             }
 
             return { std::string(line.substr(0, space_pos)),
-                    std::string(line.substr(not_space, colon_pos - not_space)),
+                    std::string(Trim(line.substr(not_space, colon_pos - not_space))),
                     std::string(line.substr(colon_pos + 1)) };
         }
 }
 
+void Fill_Catalogue(std::istream& in, TransportCatalogue& catalogue)  {
+    int base_request_count;
+    in >> base_request_count >> std::ws;
+
+    InputReader reader;
+    for (int i = 0; i < base_request_count; ++i) {
+        std::string line;
+        std::getline(in, line);
+        reader.ParseLine(line);
+    }
+    reader.ApplyCommands(catalogue);
+}
+
 void InputReader::ParseLine(std::string_view line) {
-        auto command_description = InputReaderParser::ParseCommandDescription(line);
+        auto command_description = InputReaderParser::ParseCommandDescription(InputReaderParser::Trim(line));
         if (command_description) {
             commands_.push_back(std::move(command_description));
         }

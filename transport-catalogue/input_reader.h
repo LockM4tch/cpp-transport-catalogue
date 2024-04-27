@@ -2,10 +2,12 @@
 #include "geo.h"
 #include "transport_catalogue.h"
 
+#include <algorithm>
+#include <cassert>
+#include <iostream>
 #include <string>
 #include <string_view>
 #include <vector>
-
 
 namespace InputReaderParser {
 
@@ -25,6 +27,7 @@ struct CommandDescription {
 };
 }
 
+void Fill_Catalogue(std::istream& in, TransportCatalogue& catalogue);
 
 class InputReader {
 public:
