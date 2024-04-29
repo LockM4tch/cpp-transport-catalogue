@@ -12,9 +12,10 @@
 #include <optional>
 #include <vector>
 
+
 struct Stop
 {
-	std::string stop_name; //добавил имя остановки, однако считаю что использование ключа в map в качестве имени будет более рационально, дабы не плодить лишних сущностей
+	std::string stop_name; //Г¤Г®ГЎГ ГўГЁГ« ГЁГ¬Гї Г®Г±ГІГ Г­Г®ГўГЄГЁ, Г®Г¤Г­Г ГЄГ® Г±Г·ГЁГІГ Гѕ Г·ГІГ® ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ Г­ГЁГҐ ГЄГ«ГѕГ·Г  Гў map Гў ГЄГ Г·ГҐГ±ГІГўГҐ ГЁГ¬ГҐГ­ГЁ ГЎГіГ¤ГҐГІ ГЎГ®Г«ГҐГҐ Г°Г Г¶ГЁГ®Г­Г Г«ГјГ­Г®, Г¤Г ГЎГ» Г­ГҐ ГЇГ«Г®Г¤ГЁГІГј Г«ГЁГёГ­ГЁГµ Г±ГіГ№Г­Г®Г±ГІГҐГ©
 	geo::Coordinates coordinates{ 0.0,0.0 };
 	std::set<std::string> buses;
 
@@ -33,6 +34,12 @@ struct Bus
 	}
 };
 
+struct BusStat{
+int stops_on_route;
+size_t unique_stops;
+float route_length;
+}
+
 
 class TransportCatalogue {
 public:
@@ -40,7 +47,7 @@ public:
 
 	void AddBus(const std::string& id, const std::vector<std::string_view>& route);
 
-	std::optional<std::tuple<int, size_t, float>> GetBusStat(const std::string_view& bus_name) const;
+	std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
 	
 	const  Bus* GetBus(const std::string_view& stop_name)const;
 
