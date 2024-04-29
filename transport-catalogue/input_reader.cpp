@@ -87,33 +87,33 @@ namespace InputReaderParser {
     }
 }
 
-void FillCatalogue(std::istream& in, TransportCatalogue& catalogue) {
-    int base_request_count;
-    in >> base_request_count >> std::ws;
-
-    InputReader reader;
-    for (int i = 0; i < base_request_count; ++i) {
-        std::string line;
-        std::getline(in, line);
-        reader.ParseLine(line);
-    }
-    reader.ApplyCommands(catalogue);
-}
-
-void InputReader::ParseLine(std::string_view line) {
-    auto command_description = InputReaderParser::ParseCommandDescription(InputReaderParser::Trim(line));
-    if (command_description) {
-        commands_.push_back(std::move(command_description));
-    }
-}
-
-void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) const {
-    for (auto command : commands_) {
-        if (command.command == "Stop") {
-            catalogue.AddStop(command.id, InputReaderParser::ParseCoordinates(command.description));
+    void FillCatalogue(std::istream& in, TransportCatalogue& catalogue) {
+        int base_request_count;
+        in >> base_request_count >> std::ws;
+    
+        InputReader reader;
+        for (int i = 0; i < base_request_count; ++i) {
+            std::string line;
+            std::getline(in, line);
+            reader.ParseLine(line);
         }
-        else if (command.command == "Bus") {
-            catalogue.AddBus(command.id, InputReaderParser::ParseRoute(command.description));
+        reader.ApplyCommands(catalogue);
+    }
+    
+    void InputReader::ParseLine(std::string_view line) {
+        auto command_description = InputReaderParser::ParseCommandDescription(InputReaderParser::Trim(line));
+        if (command_description) {
+            commands_.push_back(std::move(command_description));
         }
     }
-}
+    
+    void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) const {
+        for (auto command : commands_) {
+            if (command.command == "Stop") {
+                catalogue.AddStop(command.id, InputReaderParser::ParseCoordinates(command.description));
+            }
+            else if (command.command == "Bus") {
+                catalogue.AddBus(command.id, InputReaderParser::ParseRoute(command.description));
+            }
+        }
+    }
