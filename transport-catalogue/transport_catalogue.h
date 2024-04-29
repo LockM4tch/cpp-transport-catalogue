@@ -35,9 +35,9 @@ struct Bus
 };
 
 struct BusStat{
-int stops_on_route;
-size_t unique_stops;
-float route_length;
+	int stops_on_route;
+	size_t unique_stops;
+	float route_length;
 }
 
 
