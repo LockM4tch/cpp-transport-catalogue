@@ -26,7 +26,7 @@ void TransportCatalogue::AddBus(const std::string& id, const std::vector<std::st
 	buses_[id]->stops = route_str;
 }
 
-std::optional<std::tuple<int, size_t, float>> TransportCatalogue::GetBusStat(const std::string_view& bus_name) const {
+std::optional<BusStat> TransportCatalogue::GetBusStat(const std::string_view& bus_name) const {
 	auto bus_it = buses_.find(bus_name.data());
 
 	if (bus_it == buses_.end()) {
@@ -44,7 +44,7 @@ std::optional<std::tuple<int, size_t, float>> TransportCatalogue::GetBusStat(con
 			unique_stops.insert(stop_first->stop_name);
 			route_length += geo::ComputeDistance(stop_first->coordinates, stop_second->coordinates);
 		}
-		return std::optional<std::tuple<int, size_t, float>> ({ stops_on_route, unique_stops.size(), route_length });
+		return std::optional<BusStat> ({ stops_on_route, unique_stops.size(), route_length });
 	}
 }
 
