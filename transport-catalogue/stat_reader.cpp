@@ -1,15 +1,16 @@
 #include "stat_reader.h"
 
+//Bus X: R stops on route, U unique stops, L route length, C curvature
 void PrintBusInfo(const TransportCatalogue& transport_catalogue, std::string_view request,
     std::ostream& output) {
-
     auto bus_stat = transport_catalogue.GetBusStat(request);
     if (bus_stat.has_value()) {
-    auto [stops_on_route, unique_stops, route_length] = bus_stat.value();
-    output << "Bus " << request << ": " << stops_on_route << " stops on route, " << unique_stops << " unique stops, " << route_length << " route length" << "\n";
+        auto [stops_on_route, unique_stops, route_length, curvature] = bus_stat.value();
+        output << "Bus " << request << ": " << stops_on_route << " stops on route, " << unique_stops
+            << " unique stops, " << route_length << " route length, " << curvature << " curvature" << "\n";
     }
-    else { 
-        output << "Bus " << request << ": not found\n"; 
+    else {
+        output << "Bus " << request << ": not found\n";
     }
 }
 
@@ -18,15 +19,15 @@ void PrintStopInfo(const TransportCatalogue& transport_catalogue, std::string_vi
     output << "Stop " << request << ": ";
     ;
     if (transport_catalogue.GetStop(request) == nullptr) {
-        output << "not found\n"; 
-        return; 
+        output << "not found\n";
+        return;
     }
-    
+
     auto buses = transport_catalogue.GetStop(request)->buses;
     if (buses.empty()) {
         output << "no buses\n";
     }
-    else{
+    else {
         output << "buses";
         for (auto bus : buses) {
             output << " " << bus;
@@ -48,7 +49,7 @@ void ParseAndPrintStat(const TransportCatalogue& transport_catalogue, std::strin
     }
 }
 
-void ExecuteStatRequests(std::istream& in ,std::ostream& out, TransportCatalogue& transport_catalogue) {
+void ExecuteStatRequests(std::istream& in, std::ostream& out, TransportCatalogue& transport_catalogue) {
     int stat_request_count;
     in >> stat_request_count >> std::ws;
     for (int i = 0; i < stat_request_count; ++i) {
@@ -56,5 +57,4 @@ void ExecuteStatRequests(std::istream& in ,std::ostream& out, TransportCatalogue
         std::getline(std::cin, line);
         ParseAndPrintStat(transport_catalogue, line, out);
     }
-
 }
