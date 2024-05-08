@@ -33,7 +33,6 @@ namespace InputReaderParser {
     std::vector<std::string_view> Split(std::string_view string, char delim) {
         std::vector<std::string_view> result;
 
-        size_t pos = 0;
         while ((pos = string.find_first_not_of(' ', pos)) < string.length()) {
             auto delim_pos = string.find(delim, pos);
             if (delim_pos == string.npos) {
