@@ -1,7 +1,9 @@
 # Prerequisites
 *.d
-.vscode
-.vs
+transport-catalogue/.vscode/
+transport-catalogue/.vs/
+.vscode/
+.vs/
 
 # Compiled Object files
 *.slo

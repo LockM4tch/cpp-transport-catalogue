@@ -17,13 +17,13 @@ void PrintBusInfo(const TransportCatalogue& transport_catalogue, std::string_vie
 void PrintStopInfo(const TransportCatalogue& transport_catalogue, std::string_view request,
     std::ostream& output) {
     output << "Stop " << request << ": ";
-    ;
-    if (transport_catalogue.GetStop(request) == nullptr) {
+    const auto& stop = transport_catalogue.GetStop(request);
+    if (stop == nullptr) {
         output << "not found\n";
         return;
     }
 
-    auto buses = transport_catalogue.GetStop(request)->buses;
+    auto buses = stop->buses;
     if (buses.empty()) {
         output << "no buses\n";
     }

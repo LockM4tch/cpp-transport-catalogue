@@ -15,7 +15,6 @@
 struct Stop {
 	std::string stop_name;
 	geo::Coordinates coordinates{ 0.0,0.0 };
-	std::unordered_map<std::string_view, uint32_t> stop_distance;
 
 	std::set<std::string> buses;
 
@@ -37,12 +36,14 @@ struct BusStat {
 	size_t stops_on_route;
 	size_t unique_stops;
 	size_t route_length;
-	float curvature;
+	double curvature;
 };
 
 class TransportCatalogue {
 public:
-	void AddStop(const std::string& id, const geo::Coordinates& coordinates, const std::unordered_map<std::string_view, uint32_t>& stop_distance);
+	void AddStop(Stop& stop);
+
+	void AddStop(const std::string& id, const geo::Coordinates& coordinates, const std::unordered_map<std::string_view, size_t>& stop_distance);
 
 	void AddBus(const std::string& id, const std::vector<std::string_view>& route);
 
@@ -52,13 +53,27 @@ public:
 
 	const Stop* GetStop(const std::string_view& stop_name)const;
 
+	void SetDistance(const Stop* lhstop, const Stop* rhstop, size_t length);
+
+	const size_t GetDistance(const Stop* lhstop, const Stop* rhstop) const;
+
 private:
 
-	const int GetDistance(Stop* lhstop, Stop* rhstop) const;
+	void CheckExistanceAndCreateEmptyStop(std::string std);
+
+	struct StopPairHasher {
+		std::size_t operator()(const std::pair<const Stop*, const Stop*>& stopPair) const {
+			std::hash<const void*> stopHasher;
+			std::size_t firstHash = stopHasher(stopPair.first);
+			std::size_t secondHash = stopHasher(stopPair.second);
+			return firstHash ^ secondHash;
+		}
+	};
 
 	std::deque<Stop> deque_stops_;
 	std::unordered_map <std::string_view, Stop*> stops_;
 	std::deque<Bus> deque_buses_;
 	std::unordered_map<std::string_view, Bus*> buses_;
 
+	std::unordered_map <const std::pair<const Stop*, const Stop*>, size_t, StopPairHasher> distances_;
 };

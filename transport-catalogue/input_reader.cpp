@@ -1,29 +1,30 @@
 #include "input_reader.h"
 
 namespace InputReaderParser {
-    using Map_Str_Int = std::unordered_map<std::string_view, uint32_t>;
-
-    //Парсит строку вида "9900m to Rasskazovka ... , 100m to Marushkino..." и возвращает u_map<name, distance>
-    Map_Str_Int ParseDistances(std::string_view str, TransportCatalogue& catalogue) {
-        Map_Str_Int dist;
+    using DistanceMap = std::unordered_map<std::string, int>;
+    //                    01234567890    m|to|name,
+    //Парсит строку вида " 9900m to Rasskazovka ... , 100m to Marushkino..." и возвращает u_map<name, distance>
+    DistanceMap ParseDistances(std::string_view str) {
+        DistanceMap dist;
 
         size_t comma_or_end = 0;
         while (comma_or_end != str.npos) {
             auto start = str.find_first_not_of(" ");
             auto m_pos = str.find_first_of("m");
-            auto to_pos = str.find_first_not_of(" to", m_pos + 1);
-            comma_or_end = str.find_first_of(",", to_pos);
+            auto not_space = str.find_first_not_of(" ", m_pos + 1);
+            not_space = str.find_first_of(" ", not_space + 1);
+            not_space = str.find_first_not_of(" ", not_space + 1);
 
-            std::string name = std::string(str.substr(to_pos, comma_or_end - (to_pos)));
-            if (catalogue.GetStop(name) == nullptr) { catalogue.AddStop(name, {}, {}); }
-            auto stop = catalogue.GetStop(name);
+            comma_or_end = str.find_first_of(",", not_space);
+
+            std::string name = std::string(str.substr(not_space, comma_or_end - (not_space)));
 
             if (comma_or_end != str.npos) {
-                dist[stop->stop_name] = std::stoi(std::string(str.substr(start, m_pos - start)));
+                dist[name] = std::stoi(std::string(str.substr(start, m_pos - start)));
                 str = str.substr(comma_or_end + 1);
             }
             else {
-                dist[stop->stop_name] = std::stoi(std::string(str.substr(start, m_pos - start)));
+                dist[name] = std::stoi(std::string(str.substr(start, m_pos - start)));
             }
         }
         return dist;
@@ -48,17 +49,27 @@ namespace InputReaderParser {
         return { lat, lng };
     }
 
+    struct StopWithDistance
+    {
+        Stop stop;
+        DistanceMap distance_map;
+    };
 
     // 55.595884, 37.209755, 9900m to Rasskazovka, 100m to Marushkino"
-    std::pair<geo::Coordinates, Map_Str_Int>  ParseCoordinatesAndDistances(std::string_view str, TransportCatalogue& catalogue) {
+    StopWithDistance ParseStopAndDistances(std::string_view name, std::string_view str) {
+        std::string name_ = std::string(name);
 
         auto comma = str.find(',');
         comma = str.find_first_of(',', comma + 1);
 
         geo::Coordinates coordinates = ParseCoordinates(str.substr(0, comma));
-        Map_Str_Int stops_and_distances = ParseDistances(str.substr(comma + 1), catalogue);
+        Stop stop = { std::string(name), coordinates };
 
-        return { coordinates, stops_and_distances };
+        DistanceMap stops_and_distances;
+        if (comma != str.npos) {
+            stops_and_distances = ParseDistances(str.substr(comma + 1));
+        }
+        return { stop, stops_and_distances };
     }
 
     //Удаляет пробелы в начале и конце строки
@@ -122,7 +133,7 @@ namespace InputReaderParser {
             return {};
         }
 
-        return {std::string(line.substr(0, space_pos)),
+        return { std::string(line.substr(0, space_pos)),
                 std::string(Trim(line.substr(not_space, colon_pos - not_space))),
                 std::string(line.substr(colon_pos + 1)) };
     }
@@ -151,8 +162,16 @@ void InputReader::ParseLine(std::string_view line) {
 void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) const {
     for (auto command : commands_) {
         if (command.command == "Stop") {
-            auto [coordinates, stops_and_distances] = InputReaderParser::ParseCoordinatesAndDistances(command.description, catalogue);
-            catalogue.AddStop(command.id, coordinates, stops_and_distances);
+            auto [stop, distance] = InputReaderParser::ParseStopAndDistances(command.id, command.description);
+            catalogue.AddStop(stop);
+
+
+            for (auto [other_stop_name, dist] : distance) {
+                if (catalogue.GetStop(other_stop_name) == nullptr) {
+                    catalogue.AddStop(other_stop_name, {}, {});
+                }
+                catalogue.SetDistance(catalogue.GetStop(stop.stop_name), catalogue.GetStop(other_stop_name), dist);
+            }
         }
         else if (command.command == "Bus") {
             catalogue.AddBus(command.id, InputReaderParser::ParseRoute(command.description));
