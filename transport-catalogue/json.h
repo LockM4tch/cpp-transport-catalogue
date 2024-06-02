@@ -36,12 +36,10 @@ namespace json {
 
         Node() = default;
         Node(std::nullptr_t);
-        Node(Array array);
-        Node(Dict map);
-        Node(int value);
-        Node(double value);
-        Node(std::string value);
-        Node(bool value);
+
+        template <typename T>
+        Node(T value) :value_(std::move(value)) {
+        }
 
         const Value& GetValue() const {
             return value_;

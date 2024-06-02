@@ -236,24 +236,6 @@ namespace json {
     Node::Node(std::nullptr_t)
         : value_(nullptr) {
     }
-    Node::Node(Array array)
-        : value_(move(array)) {
-    }
-    Node::Node(Dict map)
-        : value_(move(map)) {
-    }
-    Node::Node(int value)
-        : value_(value) {
-    }
-    Node::Node(string value)
-        : value_(move(value)) {
-    }
-    Node::Node(double value)
-        : value_(move(value)) {
-    }
-    Node::Node(bool value)
-        : value_(move(value)) {
-    }
 
     bool Node::IsInt() const {
         return std::holds_alternative<int>(value_);
