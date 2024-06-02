@@ -3,8 +3,8 @@
 using namespace std;
 
 namespace json {
-    //load
-    namespace { 
+    //-------------------Load Node-------------------------------------
+    namespace {
 
         Node LoadNode(istream& input);
 
@@ -31,14 +31,12 @@ namespace json {
             {
                 s += c;
             }
-            if (c == '}') { input.putback(c);}
+            if (c == '}') { input.putback(c); }
             if (s == "rue") { return Node{ true }; }
             if (s == "alse") { return Node{ false }; }
             throw ParsingError("bool is to be expected"s);
         }
 
-        // Считывает содержимое строкового литерала JSON-документа
-        // Функцию следует использовать после считывания открывающего символа ":
         Node LoadString(std::istream& input) {
             using namespace std::literals;
 
@@ -111,7 +109,7 @@ namespace json {
                 input >> c;
                 result.insert({ move(key), LoadNode(input) });
             }
-            if (c != '}' ){
+            if (c != '}') {
                 throw ParsingError("Failed to create a Map"s);
             }
 
@@ -233,6 +231,7 @@ namespace json {
 
     }  // namespace
 
+    //-------------------Node-------------------------------------
     Node::Node(std::nullptr_t)
         : value_(nullptr) {
     }
@@ -311,26 +310,26 @@ namespace json {
 
     //-------------------Print Indent-------------------------------------
 
-        std::string Indent::GetIndent() {
-            std::string s;
-            
-            for (size_t i = 0; i < indent_; i++)
-            {
-                s.append(ind);
-            }
-            return s;
-        }
+    std::string Indent::GetIndent() {
+        std::string s;
 
-        void Indent::operator()(std::ostream& out) {
-            out << GetIndent();
+        for (size_t i = 0; i < indent_; i++)
+        {
+            s.append(ind);
         }
+        return s;
+    }
 
-        void Indent::operator++() {
-            ++indent_;
-        }
-        void Indent::operator--() {
-            --indent_;
-        }
+    void Indent::operator()(std::ostream& out) {
+        out << GetIndent();
+    }
+
+    void Indent::operator++() {
+        ++indent_;
+    }
+    void Indent::operator--() {
+        --indent_;
+    }
     //-------------------Print-------------------------------------
 
     void PrintNode(const Node& node, std::ostream& out, Indent& indent) {
