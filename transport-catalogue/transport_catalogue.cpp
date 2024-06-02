@@ -3,17 +3,27 @@
 
 void TransportCatalogue::AddStop(const std::string& stop_name, const geo::Coordinates& coordinates = {},
 	const std::unordered_map<std::string_view, size_t>& stop_distance = {}) {
+
 	if (stops_.count(stop_name) == 0) {
 		deque_stops_.push_back({ stop_name, coordinates, {} });
 		Stop& new_stop = deque_stops_.back();
 		stops_[new_stop.stop_name] = &(new_stop);
 
 		for (auto [name, distance] : stop_distance) {
-			CheckExistanceAndCreateEmptyStop(std::string(name));
+			AddStopIfMissing(std::string(name));
 			distances_[{ const_cast<Stop*>(&new_stop), GetStop(name) }] = distance;
 		}
+		return;
 	}
-	else if (coordinates != geo::Coordinates{}) {
+
+	if (!stop_distance.empty()) {
+		for (auto [name, distance] : stop_distance) {
+			AddStopIfMissing(std::string(name));
+			distances_[{ const_cast<Stop*>(stops_[stop_name]), GetStop(name) }] = distance;
+		}
+	}
+	
+	if (coordinates != geo::Coordinates{}) {
 		stops_[stop_name]->coordinates = coordinates;
 	}
 }
@@ -22,23 +32,23 @@ void TransportCatalogue::AddStop(Stop& stop) {
 	AddStop(stop.stop_name, stop.coordinates);
 }
 
-void TransportCatalogue::AddBus(const std::string& id, const std::vector<std::string_view>& route) {
+void TransportCatalogue::AddBus(const std::string& id, const std::vector<std::string_view>& route, bool isRoundtrip) {
 	std::vector<Stop*> route_str;
 	if (buses_.count(id) == 0) {
-		deque_buses_.push_back({ id, {} });
+		deque_buses_.push_back({ id, {}, isRoundtrip });
 		Bus* bus = &deque_buses_.back();
 		buses_[bus->bus_name] = bus;
 	}
 
 	for (auto& sv : route) {
-		CheckExistanceAndCreateEmptyStop(std::string(sv));
+		AddStopIfMissing(std::string(sv));
 		route_str.push_back(stops_[sv]);
 		stops_[sv]->buses.insert(id);
 	}
 	buses_[id]->stops = route_str;
 }
 
-void TransportCatalogue::CheckExistanceAndCreateEmptyStop(std::string std) {
+void TransportCatalogue::AddStopIfMissing(std::string std) {
 	if (stops_.find(std) == stops_.end()) {
 		AddStop(std);
 	}
@@ -46,20 +56,25 @@ void TransportCatalogue::CheckExistanceAndCreateEmptyStop(std::string std) {
 
 std::optional<BusStat> TransportCatalogue::GetBusStat(const std::string_view& bus_name) const {
 	auto bus_it = buses_.find(bus_name.data());
-
 	if (bus_it == buses_.end()) {
 		return std::optional<BusStat>();
 	}
 	else {
-		size_t stops_on_route = bus_it->second->stops.size(); ;
+		std::vector<Stop*> route = bus_it->second->stops;
+		if (!bus_it->second->isRoundtrip) {
+			for (int i = static_cast<int>(route.size()) - 2; i >= 0; --i) {
+				route.push_back(route.at(i));
+			}
+		}
+		size_t stops_on_route = route.size();
 		size_t route_length = 0;
 		double ideal_distance = 0.;
 		std::unordered_set<std::string> unique_stops;
 
 
-		for (int i = 1; i < stops_on_route; ++i) {
-			auto& stop_first = bus_it->second->stops.at(i - 1);
-			auto& stop_second = bus_it->second->stops.at(i);
+		for (size_t i = 1; i < stops_on_route; ++i) {
+			auto& stop_first = route.at(i - 1);
+			auto& stop_second = route.at(i);
 
 			unique_stops.insert(stop_first->stop_name);
 
@@ -68,7 +83,7 @@ std::optional<BusStat> TransportCatalogue::GetBusStat(const std::string_view& bu
 		}
 		ideal_distance = route_length / ideal_distance;
 
-		BusStat st{ stops_on_route, unique_stops.size(), route_length , ideal_distance };
+		BusStat st{ stops_on_route, unique_stops.size(), route_length , ideal_distance};
 		return st;
 	}
 }
@@ -81,6 +96,10 @@ const Bus* TransportCatalogue::GetBus(const std::string_view& bus_name)const {
 	return bus_iter->second;
 }
 
+const std::deque<Bus>* TransportCatalogue::GetBuses()const {
+	return &deque_buses_;
+}
+
 const Stop* TransportCatalogue::GetStop(const std::string_view& stop_name)const {
 	auto stop_iter = stops_.find(stop_name);
 	if (stop_iter == stops_.end()) {
@@ -89,16 +108,16 @@ const Stop* TransportCatalogue::GetStop(const std::string_view& stop_name)const 
 	return stop_iter->second;
 }
 
-const size_t TransportCatalogue::GetDistance(const Stop* from, const Stop* to) const {
+ size_t TransportCatalogue::GetDistance(const Stop* from,const Stop* to) const {
 	if (distances_.count({ from, to }) != 0)
 	{
-		return	distances_.at({ from,to });
+		return	distances_.at({ from,to});
 	}
-	else {
-		return	distances_.at({ to, from });
+	else{
+		return	distances_.at({to, from});
 	}
 }
 
-void TransportCatalogue::SetDistance(const Stop* lhstop, const Stop* rhstop, size_t length) {
-	distances_[std::pair{ lhstop, rhstop }] = length;
+void TransportCatalogue::SetDistance(const Stop* lhstop,const Stop* rhstop, size_t length) {
+	distances_[std::pair{lhstop, rhstop}] = length;
 }

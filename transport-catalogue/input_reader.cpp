@@ -3,7 +3,7 @@
 namespace InputReaderParser {
     using DistanceMap = std::unordered_map<std::string, int>;
     //                    01234567890    m|to|name,
-    //РџР°СЂСЃРёС‚ СЃС‚СЂРѕРєСѓ РІРёРґР° " 9900m to Rasskazovka ... , 100m to Marushkino..." Рё РІРѕР·РІСЂР°С‰Р°РµС‚ u_map<name, distance>
+    //Парсит строку вида " 9900m to Rasskazovka ... , 100m to Marushkino..." и возвращает u_map<name, distance>
     DistanceMap ParseDistances(std::string_view str) {
         DistanceMap dist;
 
@@ -11,9 +11,9 @@ namespace InputReaderParser {
         while (comma_or_end != str.npos) {
             auto start = str.find_first_not_of(" ");
             auto m_pos = str.find_first_of("m");
-            auto not_space = str.find_first_not_of(" ", m_pos + 1);
-            not_space = str.find_first_of(" ", not_space + 1);
-            not_space = str.find_first_not_of(" ", not_space + 1);
+            auto not_space = str.find_first_not_of(" ", m_pos+1);
+                not_space = str.find_first_of(" ", not_space+1);
+                not_space = str.find_first_not_of(" ", not_space + 1);
 
             comma_or_end = str.find_first_of(",", not_space);
 
@@ -30,7 +30,7 @@ namespace InputReaderParser {
         return dist;
     }
 
-    //РџР°СЂСЃРёС‚ СЃС‚СЂРѕРєСѓ РІРёРґР° "10.123,  -30.1837" Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РїР°СЂСѓ РєРѕРѕСЂРґРёРЅР°С‚ (С€РёСЂРѕС‚Р°, РґРѕР»РіРѕС‚Р°)
+    //Парсит строку вида "10.123,  -30.1837" и возвращает пару координат (широта, долгота)
     geo::Coordinates ParseCoordinates(std::string_view str) {
         static const double nan = std::nan("");
 
@@ -67,12 +67,12 @@ namespace InputReaderParser {
 
         DistanceMap stops_and_distances;
         if (comma != str.npos) {
-            stops_and_distances = ParseDistances(str.substr(comma + 1));
+        stops_and_distances = ParseDistances(str.substr(comma + 1));
         }
-        return { stop, stops_and_distances };
+            return {stop, stops_and_distances};
     }
 
-    //РЈРґР°Р»СЏРµС‚ РїСЂРѕР±РµР»С‹ РІ РЅР°С‡Р°Р»Рµ Рё РєРѕРЅС†Рµ СЃС‚СЂРѕРєРё
+    //Удаляет пробелы в начале и конце строки
     std::string_view Trim(std::string_view string) {
         const auto start = string.find_first_not_of(' ');
         if (start == string.npos) {
@@ -81,7 +81,7 @@ namespace InputReaderParser {
         return string.substr(start, string.find_last_not_of(' ') + 1 - start);
     }
 
-    //Р Р°Р·Р±РёРІР°РµС‚ СЃС‚СЂРѕРєСѓ string РЅР° n СЃС‚СЂРѕРє, СЃ РїРѕРјРѕС‰СЊСЋ СѓРєР°Р·Р°РЅРЅРѕРіРѕ СЃРёРјРІРѕР»Р°-СЂР°Р·РґРµР»РёС‚РµР»СЏ delim
+    //Разбивает строку string на n строк, с помощью указанного символа-разделителя delim
     std::vector<std::string_view> Split(std::string_view string, char delim) {
         std::vector<std::string_view> result;
         size_t pos = 0;
@@ -101,9 +101,9 @@ namespace InputReaderParser {
     }
 
     /**
-    * РџР°СЂСЃРёС‚ РјР°СЂС€СЂСѓС‚.
-    * Р”Р»СЏ РєРѕР»СЊС†РµРІРѕРіРѕ РјР°СЂС€СЂСѓС‚Р° (A>B>C>A) РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ РЅР°Р·РІР°РЅРёР№ РѕСЃС‚Р°РЅРѕРІРѕРє [A,B,C,A]
-    * Р”Р»СЏ РЅРµРєРѕР»СЊС†РµРІРѕРіРѕ РјР°СЂС€СЂСѓС‚Р° (A-B-C-D) РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ РЅР°Р·РІР°РЅРёР№ РѕСЃС‚Р°РЅРѕРІРѕРє [A,B,C,D,C,B,A]
+    * Парсит маршрут.
+    * Для кольцевого маршрута (A>B>C>A) возвращает массив названий остановок [A,B,C,A]
+    * Для некольцевого маршрута (A-B-C-D) возвращает массив названий остановок [A,B,C,D,C,B,A]
     */
     std::vector<std::string_view> ParseRoute(std::string_view route) {
         if (route.find('>') != route.npos) {
@@ -168,13 +168,14 @@ void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) 
 
             for (auto [other_stop_name, dist] : distance) {
                 if (catalogue.GetStop(other_stop_name) == nullptr) {
-                    catalogue.AddStop(other_stop_name, {}, {});
+                    catalogue.AddStop(other_stop_name, {}, {}); 
                 }
                 catalogue.SetDistance(catalogue.GetStop(stop.stop_name), catalogue.GetStop(other_stop_name), dist);
             }
         }
         else if (command.command == "Bus") {
-            catalogue.AddBus(command.id, InputReaderParser::ParseRoute(command.description));
+            bool isRoundtrip = true;
+            catalogue.AddBus(command.id, InputReaderParser::ParseRoute(command.description), isRoundtrip);
         }
     }
 }

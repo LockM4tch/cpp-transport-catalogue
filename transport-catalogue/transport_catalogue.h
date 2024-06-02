@@ -1,36 +1,17 @@
 #pragma once
 #include "geo.h"
-#include <deque>
+#include "domain.h"
 #include <iostream>
-#include <memory>
-#include <optional>
 #include <set>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
+#include <deque>
+#include <optional>
 #include <vector>
-
-struct Stop {
-	std::string stop_name;
-	geo::Coordinates coordinates{ 0.0,0.0 };
-
-	std::set<std::string> buses;
-
-	bool operator==(const Stop& other) const {
-		return (buses == other.buses) && (coordinates == other.coordinates);
-	}
-};
-
-struct Bus {
-	std::string bus_name;
-	std::vector<Stop*> stops;
-
-	bool operator==(const Bus& other) const {
-		return stops == other.stops;
-	}
-};
 
 struct BusStat {
 	size_t stops_on_route;
@@ -41,25 +22,29 @@ struct BusStat {
 
 class TransportCatalogue {
 public:
+	TransportCatalogue() = default;
+
 	void AddStop(Stop& stop);
 
 	void AddStop(const std::string& id, const geo::Coordinates& coordinates, const std::unordered_map<std::string_view, size_t>& stop_distance);
 
-	void AddBus(const std::string& id, const std::vector<std::string_view>& route);
+	void AddBus(const std::string& id, const std::vector<std::string_view>& route, bool isRoundtrip);
 
 	std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
 
 	const  Bus* GetBus(const std::string_view& stop_name)const;
 
+	const std::deque<Bus>* GetBuses()const;
+
 	const Stop* GetStop(const std::string_view& stop_name)const;
 
 	void SetDistance(const Stop* lhstop, const Stop* rhstop, size_t length);
 
-	const size_t GetDistance(const Stop* lhstop, const Stop* rhstop) const;
+	 size_t GetDistance(const Stop* lhstop,const Stop* rhstop) const;
 
 private:
 
-	void CheckExistanceAndCreateEmptyStop(std::string std);
+	void AddStopIfMissing(std::string std);
 
 	struct StopPairHasher {
 		std::size_t operator()(const std::pair<const Stop*, const Stop*>& stopPair) const {

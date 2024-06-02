@@ -42,7 +42,7 @@ void ParseAndPrintStat(const TransportCatalogue& transport_catalogue, std::strin
     request = request.substr(request.find_first_of(' ') + 1, request.npos);
 
     if (request_type == "Bus") {
-        PrintBusInfo(transport_catalogue, request, output);
+       // PrintBusInfo(transport_catalogue, request, output);
     }
     else {
         PrintStopInfo(transport_catalogue, request, output);

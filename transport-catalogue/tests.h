@@ -1,67 +1,66 @@
 #pragma once
 #include "input_reader.h"
+#include "json.h"
+#include "json_reader.h"
+#include "request_handler.h"
 #include "stat_reader.h"
+#include "svg.h"
+#include "transport_catalogue.h"
 
 #include <cassert>
 #include <iostream>
+#include <unordered_map>
 #include <sstream>
 #include <string>
 
+
 void test() {
 	using namespace std;
+	    const double WIDTH = 600.0;
+	    const double HEIGHT = 400.0;
+	    const double PADDING = 50.0;
+	
+		TransportCatalogue catalogue;
+		json::Document jsn = json::Load(std::cin);
+		json_reader::ProcessRequest(jsn, catalogue, std::cout);
+	
+		//std::deque<const Bus*> buses;
+		//for (auto& bus : *catalogue.GetBuses()) {
+		//	buses.push_back(&bus);
+		//}
 
-	TransportCatalogue catalogue;
-	InputReader ir;
-	istringstream input(
-		"13\n"
-		"Stop Marushkino : 55.595884, 37.209755, 9900m to Rasskazovka, 100m to Marushkino\n"
-		"Stop Tolstopaltsevo : 55.611087, 37.20829, 3900m to Marushkino\n"
-		"Bus 256 : Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye\n"
-		"Bus 750: Tolstopaltsevo - Marushkino - Marushkino - Rasskazovka\n"
-		"Stop Rasskazovka : 55.632761, 37.333324, 9500m to Marushkino\n"
-		"Stop Biryulyovo Zapadnoye : 55.574371, 37.6517, 7500m to Rossoshanskaya ulitsa, 1800m to Biryusinka, 2400m to Universam\n"
-		"Stop Biryusinka : 55.581065, 37.64839, 750m to Universam\n"
-		"Stop Universam : 55.587655, 37.645687, 5600m to Rossoshanskaya ulitsa, 900m to Biryulyovo Tovarnaya\n"
-		"Stop Biryulyovo Tovarnaya : 55.592028, 37.653656, 1300m to Biryulyovo Passazhirskaya\n"
-		"Stop Biryulyovo Passazhirskaya : 55.580999, 37.659164, 1200m to Biryulyovo Zapadnoye\n"
-		"Bus 828 : Biryulyovo Zapadnoye > Universam > Rossoshanskaya ulitsa > Biryulyovo Zapadnoye\n"
-		"Stop Rossoshanskaya ulitsa : 55.595579, 37.605757\n"
-		"Stop Prazhskaya : 55.611678, 37.603831\n"
-	);
 
-	FillCatalogue(input, catalogue);
+		//std::sort(buses.begin(), buses.end(), [](const Bus* lhs, const Bus* rhs) {return lhs->bus_name < rhs->bus_name; });
+		//vector<geo::Coordinates> geo_coords;
 
-	ostringstream out;
-	string line = "Bus 256";
-	ParseAndPrintStat(catalogue, line, out);
-	line = out.str();
-	assert(line == "Bus 256: 6 stops on route, 5 unique stops, 5950 route length, 1.36124 curvature\n");
+		//
+		//for (auto& bus : buses) {
+		//	for (auto& s : bus->stops) {
+		//		geo_coords.push_back(s->coordinates);
+		//	}
+		//}
 
-	out.str("");
-	line = "Bus 750";
-	ParseAndPrintStat(catalogue, line, out);
-	line = out.str();
-	assert(line == "Bus 750: 7 stops on route, 3 unique stops, 27400 route length, 1.30853 curvature\n");
+	 //   // Создаём проектор сферических координат на карту
+	 //   const SphereProjector proj{
+	 //       geo_coords.begin(), geo_coords.end(), WIDTH, HEIGHT, PADDING
+	 //   };
+		//
+		//std::unordered_map<geo::Coordinates, svg::Point> scrinpoints_;
 
-	out.str("");
-	line = "Bus 751";
-	ParseAndPrintStat(catalogue, line, out);
-	assert(out.str() == "Bus 751: not found\n");
+	 //   // Проецируем и выводим координаты
+	 //   for (const auto& geo_coord : geo_coords) {
+	 //       const svg::Point screen_coord = proj(geo_coord);
+		//	scrinpoints_[geo_coord] = screen_coord;
+	 //   }
 
-	out.str("");
-	line = "Stop Samara";
-	ParseAndPrintStat(catalogue, line, out);
-	assert(out.str() == "Stop Samara: not found\n");
-
-	out.str("");
-	line = "Stop Prazhskaya";
-	ParseAndPrintStat(catalogue, line, out);
-	assert(out.str() == "Stop Prazhskaya: no buses\n");
-
-	out.str("");
-	line = "Stop Biryulyovo Zapadnoye";
-	ParseAndPrintStat(catalogue, line, out);
-	assert(out.str() == "Stop Biryulyovo Zapadnoye: buses 256 828\n");
-
-	cout << "test passed" << endl;
+		//svg::Document doc;
+		//for (auto bus : buses) {
+		//	auto stops = bus->stops;
+		//	svg::Polyline route;
+		//	for (auto stop : stops) {
+		//		 route.AddPoint(scrinpoints_.at(stop->coordinates));
+		//	}
+		//	doc.Add(route);
+		//}
+		//doc.Render(std::cout);
 }
