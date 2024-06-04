@@ -12,7 +12,6 @@
 #include <deque>
 #include <optional>
 #include <vector>
-
 struct BusStat {
 	size_t stops_on_route;
 	size_t unique_stops;
@@ -26,7 +25,7 @@ public:
 
 	void AddStop(Stop& stop);
 
-	void AddStop(const std::string& id, const geo::Coordinates& coordinates, const std::unordered_map<std::string_view, size_t>& stop_distance);
+	void AddStop(const std::string& id, const geo::Coordinates& coordinates);
 
 	void AddBus(const std::string& id, const std::vector<std::string_view>& route, bool isRoundtrip);
 
@@ -38,13 +37,14 @@ public:
 
 	const Stop* GetStop(const std::string_view& stop_name)const;
 
+	void SetDistance(std::string_view lhstop, std::string_view rhstop, size_t length);
 	void SetDistance(const Stop* lhstop, const Stop* rhstop, size_t length);
 
 	 size_t GetDistance(const Stop* lhstop,const Stop* rhstop) const;
 
 private:
 
-	void AddStopIfMissing(std::string std);
+	void AddStopIfMissing(const std::string& std);
 
 	struct StopPairHasher {
 		std::size_t operator()(const std::pair<const Stop*, const Stop*>& stopPair) const {
