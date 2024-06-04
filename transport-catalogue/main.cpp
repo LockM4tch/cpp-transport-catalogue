@@ -6,7 +6,6 @@
 using namespace std;
 
 int main() {
-
     TransportCatalogue catalogue;
     RequestHandler handler(catalogue);
     handler.CreateDocumentFromJSON(std::cin);

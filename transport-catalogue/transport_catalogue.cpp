@@ -15,7 +15,7 @@ void TransportCatalogue::AddStop(const std::string& stop_name, const geo::Coordi
 	}
 }
 
-void TransportCatalogue::AddStop(Stop& stop) {
+void TransportCatalogue::AddStop(const Stop& stop) {
 	AddStop(stop.stop_name, stop.coordinates);
 }
 

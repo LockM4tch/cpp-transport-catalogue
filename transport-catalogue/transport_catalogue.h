@@ -23,7 +23,7 @@ class TransportCatalogue {
 public:
 	TransportCatalogue() = default;
 
-	void AddStop(Stop& stop);
+	void AddStop(const Stop& stop);
 
 	void AddStop(const std::string& id, const geo::Coordinates& coordinates);
 
