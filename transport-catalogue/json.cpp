@@ -9,7 +9,6 @@ namespace json {
         Node LoadNode(istream& input);
 
         Node LoadArray(istream& input) {
-            //[1,1.23,\"Hello\"]
             Array result;
             char c;
             for (c = ' '; input >> c && c != ']';) {

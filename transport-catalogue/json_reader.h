@@ -9,20 +9,29 @@
 #include "transport_catalogue.h"
 
 
+class  JsonReader
+{
+public:
+    JsonReader(TransportCatalogue& catalogue, MapRenderer renderer);
 
-namespace json_reader {
-    std::unordered_map<std::string_view, size_t> CreateDistanceMap(const json::Dict& dict, TransportCatalogue& catalogue);
+    void ProcessRequest(const json::Document& doc, std::ostream& out);
 
-    std::vector<std::string_view> CreateRoute(json::Node& array, TransportCatalogue& catalogue);
+private:
+    void FillCatalogue(const json::Node& doc);
+    void PrintStat(const json::Node& arr, std::ostream& out);
 
-    void FillCatalogue(const json::Node& doc, TransportCatalogue& catalogue);
+    void SetRenderSettings(const json::Node& node_map);
 
-    void ProcessRequest(const json::Document& doc, TransportCatalogue& catalogue, MapRenderer& mr, std::ostream& out);
+    json::Node GetStopInfo(const json::Node& node_map);
+    json::Node GetBusInfo(const json::Node& node_map);
+    json::Node GetMapInfo(const json::Node& node_map);
 
-    json::Node GetStopInfo(const json::Node& node_map, TransportCatalogue& catalogue);
+    std::unordered_map<std::string_view, size_t> CreateDistanceMap(const json::Dict& dict);
+    std::vector<std::string_view> CreateRoute(json::Node& array);
+    
+    svg::Color MakeColor(const json::Node& node);
+    
+    TransportCatalogue& catalogue_;
+    MapRenderer renderer_;
 
-    json::Node GetBusInfo(const json::Node& node_map, TransportCatalogue& catalogue);
-
-    void PrintStat(const json::Node& arr, TransportCatalogue& catalogue, MapRenderer& mr, std::ostream& out);
-
-}//json_reader
+};//json_reader

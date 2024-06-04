@@ -7,9 +7,6 @@ void RequestHandler::CreateDocumentFromJSON(std::istream& in) {
     document_ = std::make_unique<json::Document>(std::move(json::Load(in)));
 }
 void RequestHandler::GetRequestResults(std::ostream& out) {
-    json_reader::ProcessRequest(*document_, db_, renderer_, out);
-
+    JsonReader jr(db_, renderer_);
+    jr.ProcessRequest(*document_, out);
 }
-
-
-

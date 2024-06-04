@@ -110,6 +110,10 @@ public:
     MapRenderer& SetUnderlayerWidth(double width);
     MapRenderer& SetColorPalette(const std::vector<svg::Color>& colors);
 
+    void RenderMap(const std::deque<Bus>& buses_in, std::ostream& out);
+
+private:
+
     void DrawRoutes(std::vector<const Bus*>& buses, std::unordered_map<geo::Coordinates, svg::Point>& scrinpoints_, svg::Document& doc);
     void MakeNameText(svg::Text& nameText, const svg::Point& point, bool isUnderlayer = false);
     svg::Text MakeBusNameText(const std::string& name, const svg::Point& point, const svg::Color& color, bool isUnderlayer);
@@ -117,9 +121,7 @@ public:
     void DrawRouteNames(std::vector<const Bus*>& buses, std::unordered_map<geo::Coordinates, svg::Point>& scrinpoints_, svg::Document& doc);
     void DrawStops(std::map<std::string, const Stop*>& stops, std::unordered_map<geo::Coordinates, svg::Point>& scrinpoints_, svg::Document& doc);
     void DrawStopNames(std::map<std::string, const Stop*>& stops, std::unordered_map<geo::Coordinates, svg::Point>& scrinpoints_, svg::Document& doc);
-    void RenderMap(const std::deque<Bus>& buses_in, std::ostream& out);
 
-private:
     double width_ = 600;
     double height_ = 400;
     double padding_ = 50;

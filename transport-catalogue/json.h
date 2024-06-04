@@ -91,14 +91,13 @@ namespace json {
 
     void PrintValue(const bool value, std::ostream& out, Indent& indent);
 
-    // Шаблон, подходящий для вывода double и int
     template <typename Value>
     void PrintValue(const Value& value, std::ostream& out, Indent& indent);
 
     void PrintValue(const Dict& value, std::ostream& out, Indent& indent);
 
     void PrintValue(const Array& value, std::ostream& out, Indent& indent);
-    // Перегрузка функции PrintValue для вывода значений null
+
     void PrintValue(std::nullptr_t, std::ostream& out, Indent& indent);
 
     class Document {

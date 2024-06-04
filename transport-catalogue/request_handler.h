@@ -16,6 +16,6 @@
 
  private:
     TransportCatalogue& db_;
-    MapRenderer renderer_;
+    MapRenderer& renderer_;
     std::unique_ptr<json::Document> document_;
  };

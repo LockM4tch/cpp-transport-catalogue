@@ -1,28 +1,15 @@
 #include "transport_catalogue.h"
 
 
-void TransportCatalogue::AddStop(const std::string& stop_name, const geo::Coordinates& coordinates = {},
-	const std::unordered_map<std::string_view, size_t>& stop_distance = {}) {
-
+void TransportCatalogue::AddStop(const std::string& stop_name, const geo::Coordinates& coordinates = {}
+){
 	if (stops_.count(stop_name) == 0) {
 		deque_stops_.push_back({ stop_name, coordinates, {} });
 		Stop& new_stop = deque_stops_.back();
 		stops_[new_stop.stop_name] = &(new_stop);
-
-		for (auto [name, distance] : stop_distance) {
-			AddStopIfMissing(std::string(name));
-			distances_[{ const_cast<Stop*>(&new_stop), GetStop(name) }] = distance;
-		}
 		return;
 	}
 
-	if (!stop_distance.empty()) {
-		for (auto [name, distance] : stop_distance) {
-			AddStopIfMissing(std::string(name));
-			distances_[{ const_cast<Stop*>(stops_[stop_name]), GetStop(name) }] = distance;
-		}
-	}
-	
 	if (coordinates != geo::Coordinates{}) {
 		stops_[stop_name]->coordinates = coordinates;
 	}
@@ -48,7 +35,7 @@ void TransportCatalogue::AddBus(const std::string& id, const std::vector<std::st
 	buses_[id]->stops = route_str;
 }
 
-void TransportCatalogue::AddStopIfMissing(std::string std) {
+void TransportCatalogue::AddStopIfMissing(const std::string& std) {
 	if (stops_.find(std) == stops_.end()) {
 		AddStop(std);
 	}
@@ -118,6 +105,11 @@ const Stop* TransportCatalogue::GetStop(const std::string_view& stop_name)const 
 	}
 }
 
+ void TransportCatalogue::SetDistance(std::string_view lhstop, std::string_view rhstop, size_t length) {
+	 AddStopIfMissing(std::string(rhstop));
+	 distances_[std::pair{ GetStop(lhstop),  GetStop(rhstop) }] = length;
+	 
+ }
 void TransportCatalogue::SetDistance(const Stop* lhstop,const Stop* rhstop, size_t length) {
 	distances_[std::pair{lhstop, rhstop}] = length;
 }
