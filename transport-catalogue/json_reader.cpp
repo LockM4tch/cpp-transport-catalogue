@@ -34,10 +34,10 @@ std::vector<std::string_view> JsonReader::CreateRoute(json::Node& array) {
 
 void JsonReader::FillCatalogue(const json::Node& doc) {
     for (auto& node : doc.AsArray()) {
-        json::Dict map = node.AsMap();
+        json::Dict map = node.AsDict();
 
         if (map.at("type") == json::Node{ "Stop"s }) {
-            const auto& distances = CreateDistanceMap(map["road_distances"].AsMap());
+            const auto& distances = CreateDistanceMap(map["road_distances"].AsDict());
             std::string currentStop = map["name"].AsString();
             catalogue_.AddStop(currentStop, { map["latitude"].AsDouble(), map["longitude"].AsDouble() });
             for (auto& [stop_name, distance] : distances) {
@@ -51,8 +51,8 @@ void JsonReader::FillCatalogue(const json::Node& doc) {
     }
 }
 
-json::Node JsonReader::GetStopInfo(const json::Node& node_map) {
-    const json::Dict& in = node_map.AsMap();
+json::Node::Value JsonReader::GetStopInfo(const json::Node& node_map) {
+    const json::Dict& in = node_map.AsDict();
     json::Dict out;
     json::Array busses;
 
@@ -72,10 +72,10 @@ json::Node JsonReader::GetStopInfo(const json::Node& node_map) {
     return out;
 }
 
-json::Node JsonReader::GetBusInfo(const json::Node& node_map) {
-    const auto& bus = catalogue_.GetBusStat(node_map.AsMap().at("name").AsString());
+json::Node::Value JsonReader::GetBusInfo(const json::Node& node_map) {
+    const auto& bus = catalogue_.GetBusStat(node_map.AsDict().at("name").AsString());
     json::Dict out;
-    auto  id = node_map.AsMap().at("id");
+    auto  id = node_map.AsDict().at("id");
     if (bus.has_value()) {
         out["request_id"] = id;
         out["curvature"] = bus.value().curvature;
@@ -90,9 +90,9 @@ json::Node JsonReader::GetBusInfo(const json::Node& node_map) {
     return out;
 }
 
-json::Node JsonReader::GetMapInfo(const json::Node& node_map) {
+json::Node::Value JsonReader::GetMapInfo(const json::Node& node_map) {
     json::Dict out;
-    out["request_id"] = node_map.AsMap().at("id");
+    out["request_id"] = node_map.AsDict().at("id");
 
     std::ostringstream outstream;
     renderer_.RenderMap(*catalogue_.GetBuses(), outstream);
@@ -103,23 +103,25 @@ json::Node JsonReader::GetMapInfo(const json::Node& node_map) {
 
 void JsonReader::PrintStat(const json::Node& arr, std::ostream& out) {
     if (arr.AsArray().empty()) { return; }
+    json::Builder bldr;
+    auto vctr = bldr.StartArray();
 
-    json::Array vctr;
+    //json::Array vctr;
     for (auto& elem : arr.AsArray())
     {
-        std::string type = elem.AsMap().at("type").AsString();
+        std::string type = elem.AsDict().at("type").AsString();
         if (type == "Stop") {
-            vctr.push_back(GetStopInfo(elem));
+            vctr.Value(GetStopInfo(elem));
         }
         else if (type == "Bus") {
-            vctr.push_back(GetBusInfo(elem));
+            vctr.Value(GetBusInfo(elem));
         }
         else if (type == "Map") {
-            vctr.push_back(GetMapInfo(elem));
-
+            vctr.Value(GetMapInfo(elem));
         }
     }
-    json::Print(json::Document{ vctr }, out);
+    vctr.EndArray();
+    json::Print(json::Document{ bldr.Build() }, out);
 }
 
 svg::Color JsonReader::MakeColor(const json::Node& node) {
@@ -144,7 +146,7 @@ svg::Color JsonReader::MakeColor(const json::Node& node) {
 }
 
 void JsonReader::SetRenderSettings(const json::Node& node_map) {
-    const json::Dict& map = node_map.AsMap();
+    const json::Dict& map = node_map.AsDict();
 
     const double height = map.at("height").AsDouble();
     const double width = map.at("width").AsDouble();
@@ -184,13 +186,13 @@ void JsonReader::SetRenderSettings(const json::Node& node_map) {
 }
 
 void JsonReader::ProcessRequest(const json::Document& doc, std::ostream& out) {
-    auto& map = doc.GetRoot().AsMap();
+    auto& map = doc.GetRoot().AsDict();
 
     if (map.count("base_requests") != 0) {
         FillCatalogue(map.at("base_requests").AsArray());
     }
     if (map.count("render_settings") != 0) {
-        SetRenderSettings(map.at("render_settings").AsMap());
+        SetRenderSettings(map.at("render_settings").AsDict());
     }
     if (map.count("stat_requests") != 0) {
         PrintStat(map.at("stat_requests").AsArray(), out);

@@ -2,6 +2,7 @@
 #include <string>
 
 #include "request_handler.h"
+#include "transport_catalogue.h"
 
 using namespace std;
 
