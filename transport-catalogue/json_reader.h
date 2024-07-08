@@ -7,6 +7,7 @@
 #include "json.h"
 #include "map_renderer.h"
 #include "transport_catalogue.h"
+#include "json_builder.h"
 
 
 class  JsonReader
@@ -21,10 +22,13 @@ private:
     void PrintStat(const json::Node& arr, std::ostream& out);
 
     void SetRenderSettings(const json::Node& node_map);
+    void SetRouteSettings(const json::Node& node_map);
 
-    json::Node GetStopInfo(const json::Node& node_map);
-    json::Node GetBusInfo(const json::Node& node_map);
-    json::Node GetMapInfo(const json::Node& node_map);
+    json::Node::Value GetStopInfo(const json::Node& node_map);
+    json::Node::Value GetBusInfo(const json::Node& node_map);
+    json::Node::Value GetMapInfo(const json::Node& node_map);
+    json::Node::Value GetRouteInfo(const json::Node& node_map);
+
 
     std::unordered_map<std::string_view, size_t> CreateDistanceMap(const json::Dict& dict);
     std::vector<std::string_view> CreateRoute(json::Node& array);

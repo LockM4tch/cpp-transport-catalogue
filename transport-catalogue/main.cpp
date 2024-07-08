@@ -1,14 +1,14 @@
-﻿#include <iostream>
-#include <string>
+﻿#include <string>
+#include <iostream>
 
 #include "request_handler.h"
 #include "transport_catalogue.h"
 
-using namespace std;
 
-int main() {
+int main() { using namespace std;
+
     TransportCatalogue catalogue;
     RequestHandler handler(catalogue);
-    handler.CreateDocumentFromJSON(std::cin);
-    handler.GetRequestResults(std::cout);
+    handler.CreateDocumentFromJSON(cin);
+    handler.GetRequestResults(cout);
 }

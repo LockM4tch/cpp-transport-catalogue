@@ -101,12 +101,52 @@ json::Node::Value JsonReader::GetMapInfo(const json::Node& node_map) {
     return out;
 }
 
+json::Node::Value JsonReader::GetRouteInfo(const json::Node& node_map) {
+    auto& map = node_map.AsDict();
+    json::Builder bldr;
+
+    auto opt = catalogue_.GetRouteInfo(map.at("from"s).AsString(), map.at("to"s).AsString());
+
+    if(!opt.has_value()){
+        bldr.StartDict().Key("request_id"s).Value(map.at("id"s).AsInt())
+            .Key("error_message"s).Value("not found"s)
+            .EndDict();
+    }
+    else {
+        auto [weight, edges] = opt.value();
+        auto arr = bldr.StartDict().Key("request_id"s).Value(map.at("id"s).AsInt())
+            .Key("total_time"s).Value(weight)
+            .Key("items"s).StartArray();
+
+        for (auto edge : edges){
+            if (edge.isWait) {
+                arr.StartDict()
+                    .Key("type"s).Value("Wait"s)
+                    .Key("stop_name"s).Value(std::string{ edge.name.data() })
+                    .Key("time"s).Value(edge.weight)
+                    .EndDict();
+            }
+            else {
+
+                arr.StartDict()
+                    .Key("type"s).Value("Bus"s)
+                    .Key("bus"s).Value(std::string{ edge.name.data() })
+                    .Key("span_count"s).Value(edge.span)
+                    .Key("time"s).Value(edge.weight)
+                    .EndDict();
+            }
+
+        }
+        arr.EndArray().EndDict();
+
+    }
+    return bldr.Build().GetValue();
+}
+
 void JsonReader::PrintStat(const json::Node& arr, std::ostream& out) {
     if (arr.AsArray().empty()) { return; }
     json::Builder bldr;
     auto vctr = bldr.StartArray();
-
-    //json::Array vctr;
     for (auto& elem : arr.AsArray())
     {
         std::string type = elem.AsDict().at("type").AsString();
@@ -119,9 +159,12 @@ void JsonReader::PrintStat(const json::Node& arr, std::ostream& out) {
         else if (type == "Map") {
             vctr.Value(GetMapInfo(elem));
         }
+        else if (type == "Route") {
+            vctr.Value(GetRouteInfo(elem));
+        }
     }
     vctr.EndArray();
-    json::Print(json::Document{ bldr.Build() }, out);
+    json::Print(json::Document{bldr.Build()}, out);
 }
 
 svg::Color JsonReader::MakeColor(const json::Node& node) {
@@ -185,17 +228,37 @@ void JsonReader::SetRenderSettings(const json::Node& node_map) {
     renderer_.SetColorPalette(color_palette);
 }
 
+void JsonReader::SetRouteSettings(const json::Node& node_map) {////////////////////////////////////////////////////////////////////
+    auto& map = node_map.AsDict();
+    if (map.count("bus_wait_time") == 0) {///add error handling
+        return;
+    }
+    if (map.count("bus_velocity") == 0) {
+        return;
+    }
+    int bus_wait_time = map.at("bus_wait_time").AsInt();
+    int bus_velocity = (map.at("bus_velocity").AsInt());
+    catalogue_.SetRoutingSettings(bus_wait_time, bus_velocity);
+}
+
 void JsonReader::ProcessRequest(const json::Document& doc, std::ostream& out) {
     auto& map = doc.GetRoot().AsDict();
+    auto base_requests = map.find("base_requests");
+    auto render_settings = map.find("render_settings");
+    auto routing_settings = map.find("routing_settings");
+    auto stat_requests = map.find("stat_requests");
 
-    if (map.count("base_requests") != 0) {
-        FillCatalogue(map.at("base_requests").AsArray());
+    if (base_requests != map.end()) {
+        FillCatalogue(base_requests->second);
     }
-    if (map.count("render_settings") != 0) {
-        SetRenderSettings(map.at("render_settings").AsDict());
+    if (render_settings != map.end()) {
+        SetRenderSettings(render_settings->second);
     }
-    if (map.count("stat_requests") != 0) {
-        PrintStat(map.at("stat_requests").AsArray(), out);
+    if (routing_settings != map.end()) {
+        SetRouteSettings(routing_settings->second);
+    }
+    if (stat_requests != map.end()) {
+        PrintStat(stat_requests->second, out);
     }
 }
 

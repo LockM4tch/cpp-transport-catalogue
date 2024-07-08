@@ -5,6 +5,7 @@
 #include  <vector>
 
 struct Stop {
+	std::size_t id;
 	std::string stop_name;
 	geo::Coordinates coordinates{ 0.0,0.0 };
 
