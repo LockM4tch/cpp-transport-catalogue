@@ -8,7 +8,7 @@
 #include "transport_catalogue.h"
 
 
-	using Weight = double;
+using Weight = double;
 
 struct Edges {
 	double total_weight = 0;
@@ -27,7 +27,7 @@ public:
 	std::optional<Edges> GetRouteInfo(const Stop* from, const Stop* to);
 
 private:
-		void CreateGraph();
+	void CreateGraph();
 
 	std::unique_ptr<Graph> graph_ = nullptr;
 	std::unique_ptr <graph::Router<Weight>> router_ = nullptr;

@@ -10,6 +10,7 @@ void TransportRouter::SetRoutingSettings(const int bus_wait_time, const int bus_
 
 void TransportRouter::CreateGraph(){
 	if (graph_ != nullptr) { delete graph_.release(); }
+	const int minutes_in_hour = 60, meters_in_kilometers = 1000;
 	auto all_stops = catalogue_.GetStops();
 	size_t graph_size = all_stops->size();
 	graph_ = std::make_unique<Graph>(std::move(Graph(graph_size * 2)));
@@ -19,7 +20,7 @@ void TransportRouter::CreateGraph(){
 	for (auto& bus : *catalogue_.GetBuses()) {
 		auto stops = bus.stops;
 
-		auto addEdges = [&](auto begin, auto end) {
+		auto add_edges = [&](auto begin, auto end) {
 			for (auto it = begin; it != end; ++it) {
 				auto stop_one = *it;
 				double distance = 0;
@@ -27,14 +28,14 @@ void TransportRouter::CreateGraph(){
 				for (auto it2 = it + 1; it2 != end; ++it2) {
 					auto stop_two = *it2;
 					distance += catalogue_.GetDistance(*(it2 - 1), stop_two);
-					graph::Edge<double> edge{ stop_one->id + graph_size, stop_two->id, (distance / 1000 / bus_velocity_ * 60), false, bus.bus_name, ++span };
+					graph::Edge<double> edge{ stop_one->id + graph_size, stop_two->id, ((distance / meters_in_kilometers) / (bus_velocity_ * minutes_in_hour)), false, bus.bus_name, ++span };
 					graph_->AddEdge(edge);
 				}
 			}
 			};
-		addEdges(stops.begin(), stops.end());
+		add_edges(stops.begin(), stops.end());
 		if (!bus.isRoundtrip) {
-			addEdges(stops.rbegin(), stops.rend());
+			add_edges(stops.rbegin(), stops.rend());
 		}
 	}
 }
