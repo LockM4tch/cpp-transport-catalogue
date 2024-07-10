@@ -1,9 +1,11 @@
 #pragma once
 #include "transport_catalogue.h"
+#include "transport_router.h"
 #include "json.h"
 #include "json_reader.h"
 #include "map_renderer.h"
 #include "domain.h"
+
 #include <iostream>
 #include <memory>
 
@@ -16,6 +18,8 @@
 
  private:
     TransportCatalogue& db_;
-    MapRenderer& renderer_;
+    MapRenderer renderer_;
+    TransportRouter router_;
+
     std::unique_ptr<json::Document> document_;
  };

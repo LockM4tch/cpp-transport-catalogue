@@ -63,7 +63,7 @@ namespace InputReaderParser {
         comma = str.find_first_of(',', comma + 1);
 
         geo::Coordinates coordinates = ParseCoordinates(str.substr(0, comma));
-        Stop stop = {0, std::string(name), coordinates };
+        Stop stop = {0,  std::string(name), coordinates };
 
         DistanceMap stops_and_distances;
         if (comma != str.npos) {

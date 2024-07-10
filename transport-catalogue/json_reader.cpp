@@ -2,7 +2,7 @@
 
 using namespace std::literals;
 
-JsonReader::JsonReader(TransportCatalogue& catalogue, MapRenderer renderer) : catalogue_(catalogue), renderer_(renderer) {
+JsonReader::JsonReader(TransportCatalogue& catalogue, MapRenderer& renderer, TransportRouter& router) : catalogue_(catalogue), renderer_(renderer), router_(router) {
 }
 
 std::unordered_map<std::string_view, size_t> JsonReader::CreateDistanceMap(const json::Dict& dict) {
@@ -101,13 +101,12 @@ json::Node::Value JsonReader::GetMapInfo(const json::Node& node_map) {
     return out;
 }
 
-json::Node::Value JsonReader::GetRouteInfo(const json::Node& node_map) {
+json::Node::Value JsonReader::GetRouteInfo(const json::Node& node_map) {//////////////////////////////////////////////////
     auto& map = node_map.AsDict();
     json::Builder bldr;
+    auto opt = router_.GetRouteInfo(map.at("from"s).AsString(), map.at("to"s).AsString());
 
-    auto opt = catalogue_.GetRouteInfo(map.at("from"s).AsString(), map.at("to"s).AsString());
-
-    if(!opt.has_value()){
+    if (!opt.has_value()) {
         bldr.StartDict().Key("request_id"s).Value(map.at("id"s).AsInt())
             .Key("error_message"s).Value("not found"s)
             .EndDict();
@@ -118,7 +117,7 @@ json::Node::Value JsonReader::GetRouteInfo(const json::Node& node_map) {
             .Key("total_time"s).Value(weight)
             .Key("items"s).StartArray();
 
-        for (auto edge : edges){
+        for (auto edge : edges) {
             if (edge.isWait) {
                 arr.StartDict()
                     .Key("type"s).Value("Wait"s)
@@ -143,10 +142,12 @@ json::Node::Value JsonReader::GetRouteInfo(const json::Node& node_map) {
     return bldr.Build().GetValue();
 }
 
+
 void JsonReader::PrintStat(const json::Node& arr, std::ostream& out) {
     if (arr.AsArray().empty()) { return; }
     json::Builder bldr;
     auto vctr = bldr.StartArray();
+
     for (auto& elem : arr.AsArray())
     {
         std::string type = elem.AsDict().at("type").AsString();
@@ -228,18 +229,13 @@ void JsonReader::SetRenderSettings(const json::Node& node_map) {
     renderer_.SetColorPalette(color_palette);
 }
 
-void JsonReader::SetRouteSettings(const json::Node& node_map) {////////////////////////////////////////////////////////////////////
+void JsonReader::SetRouteSettings(const json::Node& node_map) {
     auto& map = node_map.AsDict();
-    if (map.count("bus_wait_time") == 0) {///add error handling
-        return;
-    }
-    if (map.count("bus_velocity") == 0) {
-        return;
-    }
     int bus_wait_time = map.at("bus_wait_time").AsInt();
     int bus_velocity = (map.at("bus_velocity").AsInt());
-    catalogue_.SetRoutingSettings(bus_wait_time, bus_velocity);
+    router_.SetRoutingSettings(bus_wait_time, bus_velocity);
 }
+
 
 void JsonReader::ProcessRequest(const json::Document& doc, std::ostream& out) {
     auto& map = doc.GetRoot().AsDict();
@@ -261,4 +257,3 @@ void JsonReader::ProcessRequest(const json::Document& doc, std::ostream& out) {
         PrintStat(stat_requests->second, out);
     }
 }
-

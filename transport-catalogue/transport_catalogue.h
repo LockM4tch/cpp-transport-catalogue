@@ -1,15 +1,12 @@
 #pragma once
 #include "domain.h"
 #include "geo.h"
-#include "graph.h"
-#include "router.h"
 
 #include <deque>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <set>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -23,16 +20,8 @@ struct BusStat {
 	double curvature;
 };
 
-struct Edges {
-	double total_weight = 0;
-	std::vector<graph::Edge<double>> edges;
-};
-
 class TransportCatalogue {
 public:
-	using Weight = double;
-	using Graph = graph::DirectedWeightedGraph<Weight>;
-
 	TransportCatalogue() = default;
 
 	void AddStop(const Stop& stop);
@@ -49,19 +38,15 @@ public:
 
 	const Stop* GetStop(const std::string_view& stop_name)const;
 
+	const std::deque<Stop>* GetStops()const;
+
 	void SetDistance(std::string_view lhstop, std::string_view rhstop, size_t length);
 	void SetDistance(const Stop* lhstop, const Stop* rhstop, size_t length);
-	size_t GetDistance(const Stop* lhstop,const Stop* rhstop) const;
 
-	void SetRoutingSettings(const int bus_wait_time, const int bus_velocity);
-	std::optional<Edges> GetRouteInfo(const Stop* from, const Stop* to);
-	std::optional<Edges> GetRouteInfo(const std::string_view from, const std::string_view to);
-
-
+	 size_t GetDistance(const Stop* lhstop,const Stop* rhstop) const;
 
 private:
 
-	void CreateGraph();
 	void AddStopIfMissing(const std::string& std);
 
 	struct StopPairHasher {
@@ -77,12 +62,7 @@ private:
 	std::unordered_map <std::string_view, Stop*> stops_;
 	std::deque<Bus> deque_buses_;
 	std::unordered_map<std::string_view, Bus*> buses_;
-	
-	std::unique_ptr<Graph> graph_ = nullptr;
-	std::unique_ptr<graph::Router<Weight>> router_ = nullptr;
 
-	int bus_wait_time_ = -1;
-	int bus_velocity_ = -1;
 
 	std::unordered_map <const std::pair<const Stop*, const Stop*>, size_t, StopPairHasher> distances_;
 };
