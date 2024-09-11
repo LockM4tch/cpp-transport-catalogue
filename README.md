@@ -37,143 +37,216 @@
    ./transport_catalogue < input.json > output.json
 
 Пример формата входных данных:
-  {
-      "base_requests": [
-          {
-              "is_roundtrip": true,
-              "name": "297",
-              "stops": [
-                  "Biryulyovo Zapadnoye",
-                  "Biryulyovo Tovarnaya",
-                  "Universam",
-                  "Biryulyovo Zapadnoye"
-              ],
-              "type": "Bus"
-          },
-          {
-              "is_roundtrip": false,
-              "name": "635",
-              "stops": [
-                  "Biryulyovo Tovarnaya",
-                  "Universam",
-                  "Prazhskaya"
-              ],
-              "type": "Bus"
-          },
-          {
-              "latitude": 55.574371,
-              "longitude": 37.6517,
-              "name": "Biryulyovo Zapadnoye",
-              "road_distances": {
-                  "Biryulyovo Tovarnaya": 2600
-              },
-              "type": "Stop"
-          },
-          {
-              "latitude": 55.587655,
-              "longitude": 37.645687,
-              "name": "Universam",
-              "road_distances": {
-                  "Biryulyovo Tovarnaya": 1380,
-                  "Biryulyovo Zapadnoye": 2500,
-                  "Prazhskaya": 4650
-              },
-              "type": "Stop"
-          },
-          {
-              "latitude": 55.592028,
-              "longitude": 37.653656,
-              "name": "Biryulyovo Tovarnaya",
-              "road_distances": {
-                  "Universam": 890
-              },
-              "type": "Stop"
-          },
-          {
-              "latitude": 55.611717,
-              "longitude": 37.603938,
-              "name": "Prazhskaya",
-              "road_distances": {},
-              "type": "Stop"
-          }
-      ],
-      "render_settings": {
-          "bus_label_font_size": 20,
-          "bus_label_offset": [
-              7,
-              15
-          ],
-          "color_palette": [
-              "green",
-              [
-                  255,
-                  160,
-                  0
-              ],
-              "red"
-          ],
-          "height": 200,
-          "line_width": 14,
-          "padding": 30,
-          "stop_label_font_size": 20,
-          "stop_label_offset": [
-              7,
-              -3
-          ],
-          "stop_radius": 5,
-          "underlayer_color": [
-              255,
-              255,
-              255,
-              0.85
-          ],
-          "underlayer_width": 3,
-          "width": 200
-      },
-      "routing_settings": {
-          "bus_velocity": 40,
-          "bus_wait_time": 6
-      },
-      "stat_requests": [
-          {
-              "id": 1,
-              "name": "297",
-              "type": "Bus"
-          },
-          {
-              "id": 2,
-              "name": "635",
-              "type": "Bus"
-          },
-          {
-              "id": 3,
-              "name": "Universam",
-              "type": "Stop"
-          },
-          {
-              "from": "Biryulyovo Zapadnoye",
-              "id": 4,
-              "to": "Universam",
-              "type": "Route"
-          },
-          {
-              "from": "Biryulyovo Zapadnoye",
-              "id": 5,
-              "to": "Prazhskaya",
-              "type": "Route"
-          }
-      ]
-  }
+Пример входных данных разбит на несколько разделов. Рассмотрим каждый из них отдельно:
+
+### 1. **`base_requests`** — базовые запросы, содержащие данные о маршрутах автобусов и остановках:
+   - **Маршруты автобусов**:
+     - Первый маршрут:
+       ```json
+       {
+           "is_roundtrip": true,
+           "name": "297",
+           "stops": [
+               "Biryulyovo Zapadnoye",
+               "Biryulyovo Tovarnaya",
+               "Universam",
+               "Biryulyovo Zapadnoye"
+           ],
+           "type": "Bus"
+       }
+       ```
+       - **`is_roundtrip`**: Этот маршрут кольцевой (значение `true`).
+       - **`name`**: Название маршрута — "297".
+       - **`stops`**: Остановки маршрута: "Biryulyovo Zapadnoye", "Biryulyovo Tovarnaya", "Universam", затем возвращение на "Biryulyovo Zapadnoye".
+       - **`type`**: Тип — автобус.
+       
+     - Второй маршрут:
+       ```json
+       {
+           "is_roundtrip": false,
+           "name": "635",
+           "stops": [
+               "Biryulyovo Tovarnaya",
+               "Universam",
+               "Prazhskaya"
+           ],
+           "type": "Bus"
+       }
+       ```
+       - **`is_roundtrip`**: Этот маршрут не кольцевой (значение `false`).
+       - **`name`**: Название маршрута — "635".
+       - **`stops`**: Остановки маршрута: "Biryulyovo Tovarnaya", "Universam", "Prazhskaya".
+       - **`type`**: Тип — автобус.
+     
+   - **Остановки**:
+     - Остановка "Biryulyovo Zapadnoye":
+       ```json
+       {
+           "latitude": 55.574371,
+           "longitude": 37.6517,
+           "name": "Biryulyovo Zapadnoye",
+           "road_distances": {
+               "Biryulyovo Tovarnaya": 2600
+           },
+           "type": "Stop"
+       }
+       ```
+       - **`latitude`**, **`longitude`**: Координаты остановки.
+       - **`name`**: Название остановки — "Biryulyovo Zapadnoye".
+       - **`road_distances`**: Расстояние до других остановок (например, до "Biryulyovo Tovarnaya" — 2600 метров).
+       - **`type`**: Тип — остановка.
+     
+     - Остановка "Universam":
+       ```json
+       {
+           "latitude": 55.587655,
+           "longitude": 37.645687,
+           "name": "Universam",
+           "road_distances": {
+               "Biryulyovo Tovarnaya": 1380,
+               "Biryulyovo Zapadnoye": 2500,
+               "Prazhskaya": 4650
+           },
+           "type": "Stop"
+       }
+       ```
+       - **`road_distances`**: Расстояния до остановок: до "Biryulyovo Tovarnaya" — 1380 метров, до "Biryulyovo Zapadnoye" — 2500 метров, до "Prazhskaya" — 4650 метров.
+     
+     - Остановка "Biryulyovo Tovarnaya":
+       ```json
+       {
+           "latitude": 55.592028,
+           "longitude": 37.653656,
+           "name": "Biryulyovo Tovarnaya",
+           "road_distances": {
+               "Universam": 890
+           },
+           "type": "Stop"
+       }
+       ```
+       - **`road_distances`**: Расстояние до остановки "Universam" — 890 метров.
+
+     - Остановка "Prazhskaya":
+       ```json
+       {
+           "latitude": 55.611717,
+           "longitude": 37.603938,
+           "name": "Prazhskaya",
+           "road_distances": {},
+           "type": "Stop"
+       }
+       ```
+       - Нет данных о расстояниях до других остановок.
+
+### 2. **`render_settings`** — настройки для рендеринга карты:
+   - Пример настроек:
+     ```json
+     {
+         "bus_label_font_size": 20,
+         "bus_label_offset": [7, 15],
+         "color_palette": ["green", [255, 160, 0], "red"],
+         "height": 200,
+         "line_width": 14,
+         "padding": 30,
+         "stop_label_font_size": 20,
+         "stop_label_offset": [7, -3],
+         "stop_radius": 5,
+         "underlayer_color": [255, 255, 255, 0.85],
+         "underlayer_width": 3,
+         "width": 200
+     }
+     ```
+     - **`bus_label_font_size`**: Размер шрифта для меток автобусов.
+     - **`color_palette`**: Цветовая палитра для рендеринга.
+     - **`line_width`**: Ширина линий маршрутов.
+     - **`padding`**: Отступы на карте.
+     - И другие параметры для визуализации карты.
+
+### 3. **`routing_settings`** — настройки для расчёта маршрутов:
+   - Пример настроек:
+     ```json
+     {
+         "bus_velocity": 40,
+         "bus_wait_time": 6
+     }
+     ```
+     - **`bus_velocity`**: Скорость автобуса (км/ч).
+     - **`bus_wait_time`**: Время ожидания автобуса на остановке (минуты).
+
+### 4. **`stat_requests`** — запросы для получения статистики:
+   - Пример запросов:
+     ```json
+     [
+         {
+             "id": 1,
+             "name": "297",
+             "type": "Bus"
+         },
+         {
+             "id": 2,
+             "name": "635",
+             "type": "Bus"
+         },
+         {
+             "id": 3,
+             "name": "Universam",
+             "type": "Stop"
+         },
+         {
+             "from": "Biryulyovo Zapadnoye",
+             "id": 4,
+             "to": "Universam",
+             "type": "Route"
+         },
+         {
+             "from": "Biryulyovo Zapadnoye",
+             "id": 5,
+             "to": "Prazhskaya",
+             "type": "Route"
+         }
+     ]
+     ```
+     - **`id`**: Идентификатор запроса.
+     - **`name`**: Название маршрута или остановки.
+     - **`type`**: Тип запроса — информация об автобусе, остановке или маршруте.
+     - **`from`**, **`to`**: Остановка отправления и прибытия для запроса типа "Route".
+
 
 ## Структура файлов:
-- `main.cpp`: Основной файл для запуска программы.
-- `domain.h`, `domain.cpp`: Описание сущностей остановок и автобусов.
-- `geo.h`, `geo.cpp`: Функции для работы с географическими координатами.
-- `json.h`, `json.cpp`: Собственная реализация парсера JSON.
-- `input_reader.h`, `input_reader.cpp`: Модуль для обработки пользовательских запросов.
-- `map_renderer.h`, `map_renderer.cpp`: Модуль для рендеринга SVG-карты.
-- `router.h`, `transport_router.cpp`: Маршрутизатор для расчёта оптимальных путей.
-- `tests.h`: Модуль для тестирования компонентов.
+
+- **`main.cpp`**: Основной файл для запуска программы.
+  
+- **`domain.h`, `domain.cpp`**: Описание сущностей остановок, автобусов и маршрутов.
+  
+- **`geo.h`, `geo.cpp`**: Функции для работы с географическими координатами и расчёта расстояний между точками.
+  
+- **`json.h`, `json.cpp`**: Собственная реализация парсера и генератора JSON-данных.
+  
+- **`json_builder.h`, `json_builder.cpp`**: Модуль для построения JSON-объектов через удобный интерфейс.
+
+- **`json_reader.h`, `json_reader.cpp`**: Модуль для чтения и обработки входных данных в формате JSON.
+  
+- **`input_reader.h`, `input_reader.cpp`**: Модуль для обработки пользовательских запросов и передачи данных в систему.
+  
+- **`map_renderer.h`, `map_renderer.cpp`**: Модуль для рендеринга SVG-карты с визуализацией маршрутов и остановок.
+  
+- **`svg.h`, `svg.cpp`**: Модуль для генерации SVG-элементов и работы с графикой.
+
+- **`request_handler.h`, `request_handler.cpp`**: Обработчик запросов на получение информации о транспорте и маршрутах из каталога.
+  
+- **`transport_catalogue.h`, `transport_catalogue.cpp`**: Хранение и управление данными о маршрутах, остановках и автобусах.
+
+- **`transport_router.h`, `transport_router.cpp`**: Маршрутизатор для расчёта оптимальных маршрутов с учётом времени движения и ожидания.
+
+- **`graph.h`**: Заголовочный файл для работы с графами. Шаблонные структуры для построения графов.
+
+- **`router.h`**: Заголовочный файл для поиска кратчайших путей на графе.
+
+- **`stat_reader.h`, `stat_reader.cpp`**: Модуль для получения и вывода статистики по маршрутам и остановкам.
+
+- **`ranges.h`**: Вспомогательный модуль для работы с диапазонами, использующий шаблонные конструкции.
+
+
   
 ## Планы по доработке:
 - Добавить поддержку многопоточности для ускорения обработки запросов.
