@@ -29,11 +29,8 @@
    cd transport_catalogue
 
 3. Соберите проект с использованием CMake:
-   mkdir build
-   cd build
-   cmake ..
-   make
-4. Запустите программу:
+4. 
+5. Запустите программу:
    ./transport_catalogue < input.json > output.json
 
 Пример формата входных данных:
